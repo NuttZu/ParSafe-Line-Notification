@@ -1,0 +1,6 @@
+# ignore ".ignore" Folder
+ignore/
+
+Git-Bash.lnk
+.env
+ngrok.exe

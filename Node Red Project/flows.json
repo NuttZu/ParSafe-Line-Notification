@@ -1,0 +1,1125 @@
+[
+    {
+        "id": "7b05062296879a5a",
+        "type": "tab",
+        "label": "Main Line Bot",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "926be925edcd85a0",
+        "type": "tab",
+        "label": "Line Multicast Notify",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "7e8e9189bd2efa05",
+        "type": "tab",
+        "label": "Add UserID",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "751697561dfff11d",
+        "type": "tab",
+        "label": "WiFi Web",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "f7326d4938cd8745",
+        "type": "tab",
+        "label": "UltraSonic",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "2272af9eb70cfa97",
+        "type": "mqtt-broker",
+        "name": "NetPie_Recieve",
+        "broker": "broker.netpie.io",
+        "port": "1883",
+        "clientid": "0c655091-4416-4d28-9918-ab2c77d280cf",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "a05df9db7793a4fa",
+        "type": "mqtt-broker",
+        "name": "NetPie_Send",
+        "broker": "broker.netpie.io",
+        "port": "1883",
+        "clientid": "20fb5629-89cd-4da2-a32b-26aa63d7923a",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "05ad71be21ea0351",
+        "type": "global-config",
+        "name": "global-config",
+        "env": [
+            {
+                "name": "SonicDelay",
+                "value": "0",
+                "type": "num"
+            }
+        ]
+    },
+    {
+        "id": "e97e38d71f2090f3",
+        "type": "gauth",
+        "name": "google-sheet-to-node-red@starry-antonym-409302.iam.gserviceaccount.com"
+    },
+    {
+        "id": "8866ded2859ccf62",
+        "type": "line-messaging-api-config",
+        "channelName": "ParSafeLineBot",
+        "hasToken": true,
+        "hasSecret": true
+    },
+    {
+        "id": "22aa48329ccf4417",
+        "type": "http in",
+        "z": "7b05062296879a5a",
+        "name": "Get Data Form ParSafe Line Bot",
+        "url": "callback",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 160,
+        "wires": [
+            [
+                "191db1aeca1591c3"
+            ]
+        ]
+    },
+    {
+        "id": "05b54e833f3055ed",
+        "type": "debug",
+        "z": "7b05062296879a5a",
+        "name": "MainLineBot",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 350,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b2fd0808e1fb81ab",
+        "type": "function",
+        "z": "7b05062296879a5a",
+        "name": "Main LineBot Handle",
+        "func": "//รับ input จาก line api มาเก็บไว้ใน receive_msg\nvar receive_msg = msg.payload;\nlet reply;\nlet passState = [];\n\nif (receive_msg.events[0].message.type == \"text\") {\n    // ถ้า user ส่งข้อความมาว่า \"test\" จะตอบกลับด้วย \"(LINE Emoji) ยังอยู่จ้าา\"\n    if (receive_msg.events[0].message.text == \"test\") {\n        reply = { \n            type: 'text', \n            text: \"$ ยังอยู่จ้าา\",\n            \"emojis\" : [\n                {\n                    \"index\" : \"0\",\n                    \"productId\": \"5ac21a18040ab15980c9b43e\",\n                    \"emojiId\" : \"014\"\n                }\n            ]\n        }\n    }\n    // ถ้า user ส่งข้อความมาว่า \"#User {REGIS}\" จะตอบกลับด้วย \"การสมัครเสร็จสิ้น\"\n    // และส่ง state เป็น \"register\" และส่ง userId\n    else if (receive_msg.events[0].message.text == \"#User {REGIS}\") {\n        reply = {\n            type: 'text',\n            text: \"การสมัครเสร็จสิ้น\"\n        }\n        passState = {\"state\" : \"register\", \"data\" : receive_msg.events[0].source.userId}\n    }\n    // ถ้า user ส่งข้อความมาว่า \"#Help Change.WiFi\" จะตอบกลับด้วย Wegpage สำหรับเปลี่ยน WiFi\n    else if (receive_msg.events[0].message.text == \"#Help Change.WiFi\") {\n        reply = {\n            \"type\": \"template\",\n            \"altText\": \"ParSafe WiFi Manager\",\n            \"template\": {\n                \"type\": \"buttons\",\n                \"thumbnailImageUrl\": \"https://raw.githubusercontent.com/NuttZu/Public-Picture/main/Picture/ParSafe/1446.jpg\",\n                \"imageAspectRatio\": \"square\",\n                \"imageSize\": \"cover\",\n                \"imageBackgroundColor\": \"#000000\",\n                \"title\": \"WiFi Manager\",\n                \"text\": \"เว็บสำหรับเปลี่ยน WiFi ของตู้ ParSafe\",\n                \"actions\": [\n                {\n                    \"type\": \"uri\",\n                    \"label\": \"Click!\",\n                        \"uri\": \"http://nuttzu.ddns.net:1880/WiFi-Manager/\"\n                }\n                ]\n            }\n        }\n    }\n    // ถ้า user ส่งข้อความมาว่า \"#ParSafe {passcode}\" จะตอบกลับด้วย \"รอซักครู่ครับ\"\n    //และส่ง state เป็น \"askpasscode\" และส่ง userId\n    else if (receive_msg.events[0].message.text == \"#ParSafe {passcode}\") {\n        reply = {\n            type: 'text',\n            text: \"รอซักครู่ครับ\"\n        }\n        passState = { \"state\": \"askpasscode\", \"data\": receive_msg.events[0].source.userId }\n    }\n    //// ถ้า user ส่งข้อความมาว่า #help จะตอบกลับด้วยการแนะนำคำสั่งต่างๆที่สามารถใช้ได้\n    else if (receive_msg.events[0].message.text == \"#help\") {\n        reply = {\n            type: 'text',\n            text: \"คำสั่งต่างๆมีดังนี้ครับ\\n1. --> #User {REGIS} <-- คำสั่งนี้ใช้ในการสมัครรับการแจ้งเตือนจากตู้\\n\\n2. --> #ParSafe {passcode} <-- คำสั่งนี้ใช้เพื่อรับรหัสปลดล็อคตู้\\n\\n3. --> #Help Change.WiFi <-- คำสั่งนี้ใช้เพื่อรับ link เว็บไซต์สำหรับเปลี่ยน WiFi\"\n        }\n    }\n    //ถ้าไม่ตรงกับข้อดใดเลย จะตอบกลับว่า ไม่มีคำสั่งในระบบ และแนะนำคำสั่ง \"#help\"\n    else {\n        reply = {\n            type: 'text',\n            text: 'ไม่มีคำสั่งนี้ในระบบครับ\\nโปรดตรวจสอบว่าคำสั่งที่ท่านพิมพ์มาถูกต้องหรือไม่\\n\\nหากไม่รู้คำสั่งใดๆ สามารถพิมพ์ \"#help\" เพื่อเรียกดูคำสั่งต่างๆได้เลยครับ'\n        }\n    }\n}\n//ถ้า user ส่งอย่างอื่นที่ไม่ใช่ข้อความเข้ามา จะตอบกลับว่า LineBot รับได้แค่ข้อความ\nelse {\n    reply = {\n        type: 'text',\n        text: 'ตอนนี้ ParSafe LineBot สามารถรับได้เพียงแค่ข้อความ ไม่สามารถรับ รูปภาพ วิดีโอ หรือเสียงได้'\n    }\n}\n\nvar value = [receive_msg, reply];\nmsg.payload = value;\nmsg.state = passState;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 260,
+        "y": 380,
+        "wires": [
+            [
+                "09eb4bb45898c0c8",
+                "3174ca940a73fe30"
+            ]
+        ]
+    },
+    {
+        "id": "80a0adba93661c3d",
+        "type": "comment",
+        "z": "7b05062296879a5a",
+        "name": "node-red-contrib-linebot",
+        "info": "node-red-contrib-linebot",
+        "x": 100,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "2696b3f39a01aed7",
+        "type": "comment",
+        "z": "7b05062296879a5a",
+        "name": "node-red-contrib-node-line-api",
+        "info": "",
+        "x": 120,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "45ee1d693b1bba1b",
+        "type": "comment",
+        "z": "7b05062296879a5a",
+        "name": "node-red-contrib-google-sheets",
+        "info": "",
+        "x": 130,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "d03e91883e57910c",
+        "type": "function",
+        "z": "7b05062296879a5a",
+        "name": "Register Handle",
+        "func": "let same=0;\n\nfor (let i=0; i < msg.payload[1].length; i++){\n    if (msg.payload[0] == msg.payload[1][i]){\n        same ++;\n    }\n}\n\nif (same > 0){\n    return;\n}\nelse{\n    msg.payload = msg.payload[0]\n    return msg;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1000,
+        "y": 200,
+        "wires": [
+            [
+                "02e8ebf51fad9869",
+                "1df7c927898cce58"
+            ]
+        ]
+    },
+    {
+        "id": "02e8ebf51fad9869",
+        "type": "mqtt out",
+        "z": "7b05062296879a5a",
+        "name": "",
+        "topic": "@msg/Line/Register",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "a05df9db7793a4fa",
+        "x": 1140,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "4d988f9309895423",
+        "type": "join",
+        "z": "7b05062296879a5a",
+        "name": "Combine Data",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 940,
+        "y": 140,
+        "wires": [
+            [
+                "d03e91883e57910c"
+            ]
+        ]
+    },
+    {
+        "id": "191db1aeca1591c3",
+        "type": "delay",
+        "z": "7b05062296879a5a",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 160,
+        "y": 300,
+        "wires": [
+            [
+                "b2fd0808e1fb81ab",
+                "05b54e833f3055ed"
+            ]
+        ]
+    },
+    {
+        "id": "1df7c927898cce58",
+        "type": "debug",
+        "z": "7b05062296879a5a",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1160,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "3174ca940a73fe30",
+        "type": "switch",
+        "z": "7b05062296879a5a",
+        "name": "Separate Data By State",
+        "property": "state[\"state\"]",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "register",
+                "vt": "str"
+            },
+            {
+                "t": "eq",
+                "v": "askpasscode",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 2,
+        "x": 550,
+        "y": 380,
+        "wires": [
+            [
+                "7863c06530c2419b"
+            ],
+            [
+                "60211ea5fb8fa1f8"
+            ]
+        ]
+    },
+    {
+        "id": "86eb577c33e6127d",
+        "type": "debug",
+        "z": "7b05062296879a5a",
+        "name": "debug 19",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "7863c06530c2419b",
+        "type": "function",
+        "z": "7b05062296879a5a",
+        "name": "Return Data",
+        "func": "let data = JSON.parse(msg.state);\nmsg.payload = data[\"data\"]\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 710,
+        "y": 140,
+        "wires": [
+            [
+                "86eb577c33e6127d",
+                "4d988f9309895423",
+                "47e6b9f3a4b3f26a"
+            ]
+        ]
+    },
+    {
+        "id": "60211ea5fb8fa1f8",
+        "type": "function",
+        "z": "7b05062296879a5a",
+        "name": "Return Data",
+        "func": "let data = JSON.parse(msg.state);\nmsg.payload = {\"destination\":data[\"data\"]}\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 870,
+        "y": 420,
+        "wires": [
+            [
+                "a96d3916968ff0da",
+                "8b3bb1c86fe3d5a7"
+            ]
+        ]
+    },
+    {
+        "id": "a96d3916968ff0da",
+        "type": "mqtt out",
+        "z": "7b05062296879a5a",
+        "name": "",
+        "topic": "@msg/Board/askPassCode",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "a05df9db7793a4fa",
+        "x": 920,
+        "y": 480,
+        "wires": []
+    },
+    {
+        "id": "8b3bb1c86fe3d5a7",
+        "type": "debug",
+        "z": "7b05062296879a5a",
+        "name": "debug 21",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1040,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "09eb4bb45898c0c8",
+        "type": "linebot-client",
+        "z": "7b05062296879a5a",
+        "name": "ParSafe Line Bot",
+        "channelAccessToken": "hewPys4oaJePaZ+pRzLiCuJ9yBXN3wB2a/W8dZ0btyzZQT2T/NOoHLv8lVTQ64bRkf/y4NrrOiDg4qzibccxi1//ZhHdUgUOczgTG8pmHTgnSnfCR2s2EG1LLimta4++PreSKkALnYAJtd7RS9TtYwdB04t89/1O/w1cDnyilFU=",
+        "channelSecret": "41b96482a6daaa9f6b4858cb30ae0154",
+        "x": 390,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "47e6b9f3a4b3f26a",
+        "type": "GSheet",
+        "z": "7b05062296879a5a",
+        "creds": "e97e38d71f2090f3",
+        "method": "get",
+        "action": "",
+        "sheet": "14hjNfqIdwyAQysrdF14dRMT7Cnv4ERvNNEvlw37wxc8",
+        "cells": "A2:A21000",
+        "flatten": false,
+        "name": "Get All UserID",
+        "x": 820,
+        "y": 80,
+        "wires": [
+            [
+                "4d988f9309895423"
+            ]
+        ]
+    },
+    {
+        "id": "d0f3da0741b7326b",
+        "type": "function",
+        "z": "926be925edcd85a0",
+        "name": "Send msg",
+        "func": "//ส่งข้อความที่ได้รับมาจาก mqtt ไปที่ line api\nmsg.destinations = msg.payload[1];\nmsg.messageType = 1;\nmsg.payload = {\n    \"type\": \"text\",\n    \"text\": msg.payload[0]\n};\ndelete msg.topic;\ndelete msg.qos;\ndelete msg.retain;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 180,
+        "wires": [
+            [
+                "85c8a773c8b9c0f4",
+                "38599e802d6e677f"
+            ]
+        ]
+    },
+    {
+        "id": "0496ac11cf1e982a",
+        "type": "debug",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 710,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "e4cbde6dd3e3b172",
+        "type": "mqtt in",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "topic": "@msg/Line/Notify",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "2272af9eb70cfa97",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 60,
+        "wires": [
+            [
+                "2a785b696d216ba0",
+                "c0e148cdede780bf"
+            ]
+        ]
+    },
+    {
+        "id": "c0e148cdede780bf",
+        "type": "join",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "mode": "custom",
+        "build": "array",
+        "property": "payload",
+        "propertyType": "msg",
+        "key": "topic",
+        "joiner": "\\n",
+        "joinerType": "str",
+        "accumulate": false,
+        "timeout": "",
+        "count": "2",
+        "reduceRight": false,
+        "reduceExp": "",
+        "reduceInit": "",
+        "reduceInitType": "",
+        "reduceFixup": "",
+        "x": 330,
+        "y": 180,
+        "wires": [
+            [
+                "38599e802d6e677f",
+                "d0f3da0741b7326b"
+            ]
+        ]
+    },
+    {
+        "id": "38599e802d6e677f",
+        "type": "debug",
+        "z": "926be925edcd85a0",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "0fbe044b6ea43106",
+        "type": "function",
+        "z": "926be925edcd85a0",
+        "name": "Return array off all UserID",
+        "func": "let array = [];\n//เอา UserID ทั้งหมดจาก database มายัดใส่ array\nfor (let i=0; i<msg.payload.length ;i++){\n    if (msg.payload[i] != 0) {\n        array.push(...(msg.payload[i]));\n    }\n    else {\n        continue;\n    }\n}\nmsg.payload = array\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 170,
+        "y": 240,
+        "wires": [
+            [
+                "c0e148cdede780bf"
+            ]
+        ]
+    },
+    {
+        "id": "798f927a6c26dfd3",
+        "type": "mqtt in",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "topic": "@msg/Line/Notify/Specific",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "2272af9eb70cfa97",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 150,
+        "y": 460,
+        "wires": [
+            [
+                "e3499a8da11cc9c8"
+            ]
+        ]
+    },
+    {
+        "id": "f733f434e4949987",
+        "type": "function",
+        "z": "926be925edcd85a0",
+        "name": "Send msg (Specific)",
+        "func": "delete msg.topic;\ndelete msg.qos;\ndelete msg.retain;\n\n//ถอด data จาก JsonObject มาใส่ในตัวแปร\nlet array = JSON.parse(msg.payload);\nlet state = array[\"state\"];\nlet destination = array[\"destination\"];\n\nmsg.destinations = [destination];\nmsg.messageType = 1;\n\n//ถ้า state เป็น \"askPassCode\" ให้ส่งรหัส keypad\nif (state == \"askPassCode\") {\n    let passCode = array[\"passCode\"];\n    msg.payload = {\n        \"type\": \"text\",\n        \"text\": \"รหัสของตู้ ParSafe คือ : \" + passCode\n    };\n    return msg;\n}",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 540,
+        "y": 460,
+        "wires": [
+            [
+                "d193e0ab11efc088"
+            ]
+        ]
+    },
+    {
+        "id": "e3499a8da11cc9c8",
+        "type": "json",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 330,
+        "y": 460,
+        "wires": [
+            [
+                "f733f434e4949987",
+                "be6812d21c9bdeaa"
+            ]
+        ]
+    },
+    {
+        "id": "be6812d21c9bdeaa",
+        "type": "debug",
+        "z": "926be925edcd85a0",
+        "name": "debug 20",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 410,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "85c8a773c8b9c0f4",
+        "type": "node-line-bot-multicast-message",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "useExternalMessage": true,
+        "useExternalDestinationId": true,
+        "hasDestinationId": false,
+        "hasMessage": true,
+        "message": "Hi, I am multicast message node 😊",
+        "messageType": 0,
+        "disabledNotification": false,
+        "apiConfig": "8866ded2859ccf62",
+        "x": 490,
+        "y": 240,
+        "wires": [
+            [
+                "0496ac11cf1e982a"
+            ]
+        ]
+    },
+    {
+        "id": "d193e0ab11efc088",
+        "type": "node-line-bot-multicast-message",
+        "z": "926be925edcd85a0",
+        "name": "",
+        "useExternalMessage": true,
+        "useExternalDestinationId": true,
+        "hasDestinationId": false,
+        "hasMessage": true,
+        "message": "Hi, I am multicast message node 😊",
+        "messageType": 0,
+        "disabledNotification": false,
+        "apiConfig": "8866ded2859ccf62",
+        "x": 790,
+        "y": 460,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "2a785b696d216ba0",
+        "type": "GSheet",
+        "z": "926be925edcd85a0",
+        "creds": "e97e38d71f2090f3",
+        "method": "get",
+        "action": "",
+        "sheet": "14hjNfqIdwyAQysrdF14dRMT7Cnv4ERvNNEvlw37wxc8",
+        "cells": "A2:A21000",
+        "flatten": false,
+        "name": "Get UserID",
+        "x": 130,
+        "y": 180,
+        "wires": [
+            [
+                "0fbe044b6ea43106"
+            ]
+        ]
+    },
+    {
+        "id": "a8ca3358378c9b08",
+        "type": "debug",
+        "z": "7e8e9189bd2efa05",
+        "name": "LineRegister",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 510,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "76796c34e5607c9a",
+        "type": "mqtt in",
+        "z": "7e8e9189bd2efa05",
+        "name": "",
+        "topic": "@msg/Line/Register",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "2272af9eb70cfa97",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "06f62ac28ea7e4ef"
+            ]
+        ]
+    },
+    {
+        "id": "06f62ac28ea7e4ef",
+        "type": "GSheet",
+        "z": "7e8e9189bd2efa05",
+        "creds": "e97e38d71f2090f3",
+        "method": "append",
+        "action": "",
+        "sheet": "14hjNfqIdwyAQysrdF14dRMT7Cnv4ERvNNEvlw37wxc8",
+        "cells": "A2:A21000",
+        "flatten": false,
+        "name": "Add UserID",
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "a8ca3358378c9b08"
+            ]
+        ]
+    },
+    {
+        "id": "e542e5b0f57d6c5e",
+        "type": "http in",
+        "z": "751697561dfff11d",
+        "name": "",
+        "url": "/WiFi-Manager",
+        "method": "get",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 130,
+        "y": 80,
+        "wires": [
+            [
+                "fb8386294cb73659"
+            ]
+        ]
+    },
+    {
+        "id": "d00c40c98fefea21",
+        "type": "template",
+        "z": "751697561dfff11d",
+        "name": "JavaScript Code",
+        "field": "payload.script",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "function PressSubBtn(){\n    location.reload();\n}",
+        "output": "str",
+        "x": 340,
+        "y": 120,
+        "wires": [
+            [
+                "a00e792645d3ed7a"
+            ]
+        ]
+    },
+    {
+        "id": "a00e792645d3ed7a",
+        "type": "template",
+        "z": "751697561dfff11d",
+        "name": "Css Code",
+        "field": "payload.style",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "html,body{\n    padding: 0;\n    margin: 0;\n    background-color: rgb(188, 188, 188);\n}\n\n.HEADER {\n    background-color: brown;\n    padding-top: 15px;\n    padding-bottom: 15px;\n    padding-left: 5px;\n    font-size: 24px;\n    font-weight: bold;\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n}\n\n.bolder-text {\n    padding-left: 25px;\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n}\n\nh2 {\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n}\n\ninput {\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n}\n\n.status {\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n    font-size: 25px;\n}\n\n.Tutorial-div {\n    margin-top : 75px;\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n    width: fit-content;\n    border: 3px solid blue;\n    padding: 0px;\n    background-color: lightblue;\n}\n\n.Tutorial-index {\n    padding-left: 10px;\n    padding-right: 10px;\n    font-weight: 500;\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n}\n.Tutorial-index-highlight {\n    color: yellow;\n    padding-left: 10px;\n    padding-right: 10px;\n    font-weight: bold;\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n.sub-button{\n    padding-left: 25px;\n}\n\n.button-3 {\n    appearance: none;\n    background-color: #2ea44f;\n    border: 1px solid rgba(27, 31, 35, .15);\n    border-radius: 6px;\n    box-shadow: rgba(27, 31, 35, .1) 0 1px 0;\n    box-sizing: border-box;\n    color: #fff;\n    cursor: pointer;\n    display: inline-block;\n    font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\n    font-size: 14px;\n    font-weight: 600;\n    line-height: 20px;\n    padding: 6px 16px;\n    position: relative;\n    text-align: center;\n    text-decoration: none;\n    user-select: none;\n    -webkit-user-select: none;\n    touch-action: manipulation;\n    vertical-align: middle;\n    white-space: nowrap;\n}\n\n.button-3:focus:not(:focus-visible):not(.focus-visible) {\n    box-shadow: none;\n    outline: none;\n}\n\n.button-3:hover {\n    background-color: #2c974b;\n}\n\n.button-3:focus {\n    box-shadow: rgba(46, 164, 79, .4) 0 0 0 3px;\n    outline: none;\n}\n\n.button-3:disabled {\n    background-color: #94d3a2;\n    border-color: rgba(27, 31, 35, .1);\n    color: rgba(255, 255, 255, .8);\n    cursor: default;\n}\n\n.button-3:active {\n    background-color: #298e46;\n    box-shadow: rgba(20, 70, 32, .2) 0 1px 0 inset;\n}",
+        "output": "str",
+        "x": 320,
+        "y": 160,
+        "wires": [
+            [
+                "9d7dfcae607ebca7"
+            ]
+        ]
+    },
+    {
+        "id": "9d7dfcae607ebca7",
+        "type": "template",
+        "z": "751697561dfff11d",
+        "name": "HTML Code",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html>\n    <head>\n        <link rel=\"icon\" href=\"https://raw.githubusercontent.com/NuttZu/Public-Picture/main/Picture/ParSafe/1446.jpg\">\n        <meta charset=\"utf-8\">\n        <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n        <title>ParSafe WiFi Setting</title>\n        <style>{{{payload.style}}}</style>\n        <script src=\"https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js\" type=\"text/javascript\"></script>\n    </head>\n    <body>\n        <div class=\"HEADER\">ParSafe WiFi Changer</div>\n        <form  method=\"post\" action=\"/{{url}}\">\n            <h2 style=\"padding-left: 5px;\">WiFi SSID & Password</h2>\n            <p>\n                <b class=\"bolder-text\" style=\"padding-right: 45px;\">WiFi Name</b>\n                <input type=\"text\" =\"ssid\" name=\"ssid\" placeholder=\"ParSafe-Setup\">\n            </p>\n            <p style=\"padding-bottom: 5px;\">\n                <b class=\"bolder-text\" style=\"padding-right: 19px;\">WiFi Password</b>\n                <input type=\"text\" id=\"password\" name=\"password\" placeholder=\"12345678\">\n            </p>\n            <p class=\"sub-button\">\n                <input onclick=\"location.reload();\" type=\"submit\" id=\"submit_btn\" class=\"button-3\" role=\"button\"></input>\n            </p>\n        </form>\n        <div class=\"Tutorial-div\">\n            <div style=\"background-color: #2ed159; margin:0px; padding-top:5px; padding-bottom:5px;font-size: 18px; font-weight: bold; font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\">วิธีการใช้งาน</div>\n            <p class=\"Tutorial-index\">1. ใส่ชื่อ WiFi ที่ต้องการเปลี่ยนที่ช่อง \"WiFi Name\"</p>\n            <p class=\"Tutorial-index\">2. ใส่รหัส WiFi ที่ช่อง \"WiFi Password\"</p>\n            <p class=\"Tutorial-index\">3. กดปุ่ม \"Submit\" หรือ \"ส่ง\"</p>\n            \n            <div style=\"background-color: #d6424f; margin:0px; margin-top: 40px; padding-top:5px; padding-bottom:5px;font-size: 18px; font-weight: bold; font-family: -apple-system,system-ui,\"Segoe UI\",Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\";\">กรณีผิดพลาด</div>\n            <div style=\"background-color: #f3ff85;\">\n                <p class=\"Tutorial-index\">หากใส่ชื่อ WiFi หรือรหัส WiFi ผิด</p>\n                <p class=\"Tutorial-index\">แล้วได้กดปุ่ม \"ส่ง\" หรือ \"Submit\" ไปแล้ว</p>\n                <p class=\"Tutorial-index\">ให้ทำการกดปุ่ม Reset หรือ EN บนบอร์ด ESP32</p>\n                <p class=\"Tutorial-index\">เพื่อรีเซ็ตการทำงานของบอร์ด</p>\n                <p class=\"Tutorial-index\">แล้วจึงใส่ชื่อ WiFi และรหัสวาย WiFi ให้ถูกต้อง</p>\n                <p class=\"Tutorial-index\">แล้วกดปุ่ม \"Submit\" หรือ \"ส่ง\"</p>\n            </div>\n        </div>\n    </body>\n</html>\n<script type=\"text/javascript\"></script>",
+        "output": "str",
+        "x": 330,
+        "y": 200,
+        "wires": [
+            [
+                "32c8d88b4938f708"
+            ]
+        ]
+    },
+    {
+        "id": "fb8386294cb73659",
+        "type": "function",
+        "z": "751697561dfff11d",
+        "name": "function 19",
+        "func": "msg.url = \"getmypost\"\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 330,
+        "y": 80,
+        "wires": [
+            [
+                "d00c40c98fefea21"
+            ]
+        ]
+    },
+    {
+        "id": "fae02802f5aa3d15",
+        "type": "http in",
+        "z": "751697561dfff11d",
+        "name": "",
+        "url": "getmypost",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 300,
+        "wires": [
+            [
+                "ce182a87e6f258f5"
+            ]
+        ]
+    },
+    {
+        "id": "32c8d88b4938f708",
+        "type": "http response",
+        "z": "751697561dfff11d",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 510,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "ce182a87e6f258f5",
+        "type": "json",
+        "z": "751697561dfff11d",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 290,
+        "y": 300,
+        "wires": [
+            [
+                "a210125f95633286"
+            ]
+        ]
+    },
+    {
+        "id": "ab09bf3e8468e961",
+        "type": "debug",
+        "z": "751697561dfff11d",
+        "name": "debug 4",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 620,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "a210125f95633286",
+        "type": "function",
+        "z": "751697561dfff11d",
+        "name": "function 20",
+        "func": "//เอาข้อมูลใส่ไว้ในตัวแปร\nlet array = JSON.parse(msg.payload);\nlet ssid = array[\"ssid\"];\nlet password = array[\"password\"];\n\n// ถ้า ssid & password ไม่มีอะไรเลย จะไม่ส่งข้อมูลไปที่ ESP32\nif (ssid != \"\" && password != \"\"){\n    msg.payload = [ssid,password]\n    return msg;\n} else {\n    return;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 300,
+        "wires": [
+            [
+                "ab09bf3e8468e961",
+                "2a5e10dd700d6086"
+            ]
+        ]
+    },
+    {
+        "id": "2a5e10dd700d6086",
+        "type": "mqtt out",
+        "z": "751697561dfff11d",
+        "name": "",
+        "topic": "@msg/WiFi/change",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "a05df9db7793a4fa",
+        "x": 650,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "3082922af80b52bf",
+        "type": "mqtt in",
+        "z": "f7326d4938cd8745",
+        "name": "",
+        "topic": "@msg/UltraSonic",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "2272af9eb70cfa97",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 80,
+        "wires": [
+            [
+                "1d80285eb146493c"
+            ]
+        ]
+    },
+    {
+        "id": "1d80285eb146493c",
+        "type": "json",
+        "z": "f7326d4938cd8745",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 280,
+        "y": 80,
+        "wires": [
+            [
+                "d452d5786c1f1260"
+            ]
+        ]
+    },
+    {
+        "id": "d452d5786c1f1260",
+        "type": "function",
+        "z": "f7326d4938cd8745",
+        "name": "return UltraSonic Value",
+        "func": "//ส่งค่าของ UltraSonic Sensor ไปที่ node ถัดไป\nlet value = Number(msg.payload[\"Value\"])\nmsg.payload = value\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 80,
+        "wires": [
+            [
+                "9937c334a98b7252",
+                "0b54e894826a8430"
+            ]
+        ]
+    },
+    {
+        "id": "9937c334a98b7252",
+        "type": "function",
+        "z": "f7326d4938cd8745",
+        "name": "main isFull function",
+        "func": "let value = msg.payload;\nconst ParSafe_Full = 45;\n\n// 35 คือค่าเซ็นเซอร์ตอนเปิดฝาตู้\nif ((value <= 36)) {\n    return;\n} else if (value <= ParSafe_Full) {\n    msg.payload = \"ตอนนี้ตู้ ParSafe เต็มแล้วจ้าา\";\n    return msg;\n}",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 140,
+        "wires": [
+            [
+                "1576aed25d77cf23"
+            ]
+        ]
+    },
+    {
+        "id": "8ef7eba26664501e",
+        "type": "mqtt out",
+        "z": "f7326d4938cd8745",
+        "name": "",
+        "topic": "@msg/Line/Notify",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "a05df9db7793a4fa",
+        "x": 450,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "1576aed25d77cf23",
+        "type": "delay",
+        "z": "f7326d4938cd8745",
+        "name": "",
+        "pauseType": "rate",
+        "timeout": "10",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "30",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": true,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 440,
+        "y": 200,
+        "wires": [
+            [
+                "8ef7eba26664501e"
+            ]
+        ]
+    },
+    {
+        "id": "0b54e894826a8430",
+        "type": "debug",
+        "z": "f7326d4938cd8745",
+        "name": "Display UltraSonic Value",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 740,
+        "y": 180,
+        "wires": []
+    }
+]

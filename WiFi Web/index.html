@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>ParSafe WiFi Setting</title>
+        <style>{{{payload.style}}}</style>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <div class="HEADER">ParSafe WiFi Changer</div>
+        <form  method="post" action="/{{url}}">
+            <h2 style="padding-left: 5px;">WiFi SSID & Password</h2>
+            <p>
+                <b class="bolder-text" style="padding-right: 45px;">WiFi Name</b>
+                <input type="text" ="ssid" name="ssid" placeholder="ParSafe-Setup">
+            </p>
+            <p style="padding-bottom: 5px;">
+                <b class="bolder-text" style="padding-right: 19px;">WiFi Password</b>
+                <input type="text" id="password" name="password" placeholder="12345678">
+            </p>
+            <p class="sub-button">
+                <input onclick="location.reload();" type="submit" id="submit_btn" class="button-3" role="button"></input>
+            </p>
+        </form>
+    </body>
+</html>
+<script type="text/javascript"></script>
